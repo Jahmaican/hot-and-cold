@@ -7,14 +7,15 @@ require_relative 'class/player.rb'
 class Game < Window
   def initialize
     super 1, 1, false #hack
-    super screen_width, screen_height, true
+    super 1024, 576, false
     self.caption = "Hot and Cold"
     enable_undocumented_retrofication
     
-    @scale_x = screen_width/336
-    @scale_y = screen_height/192
+    @scale_x = width/336
+    @scale_y = height/192
     
     @map = Map.new(self)
+    @player = Player.new(self, 32, 24)
     @world = :cold
   end
   
@@ -23,17 +24,19 @@ class Game < Window
     when KbQ
       @world = @world == :cold ? :hot : :cold
       @map.switch_world(@world)
+      @player.switch_world(@world)
     when KbEscape
       close
     end
   end
   
   def update
-    
+    @player.update
   end
 
   def draw
     scale(@scale_x, @scale_y) {
+      @player.draw
       @map.draw
     }
   end

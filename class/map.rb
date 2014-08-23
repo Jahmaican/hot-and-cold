@@ -21,21 +21,56 @@ class Map
       temp.push(row)
     end
     
+    temp=temp.transpose
     map = []
-    temp.each do |line|
+    temp.each_index do |x|
       row = []
-      line.each_index do |c|
-        if line[c] == "#"
-          row.push(2)
-        elsif line[c] == "."
-          row.push(8)
+      temp[x].each_index do |y|
+        if temp[x][y] == "#"
+          if temp[x][y+1] != "#" 
+            row.push(1)
+          else
+            row.push(2)
+          end
+        elsif temp[x][y] == "."
+          if temp[x][y-1] == "#" and temp[x-2][y-1] == "#" and temp [x-1][y-1] !="#"
+            row.push(25)
+          elsif temp[x][y-1] == "#" and temp[x+2][y-1] == "#" and temp [x+1][y-1] !="#"
+            row.push(24)
+          elsif temp[x-1][y] == "#" and temp[x+1][y] == "#"
+            row.push(21)
+          elsif temp[x][y-1] != "#" and temp[x-1][y-1] == "#" and temp [x+1][y-1] =="#" and temp [x-1][y] =="#"
+            row.push(22)
+          elsif temp[x][y-1] != "#" and temp[x-1][y-1] == "#" and temp [x+1][y-1] =="#" and temp [x+1][y] =="#"
+            row.push(23)
+          elsif temp[x-1][y] == "#" and temp[x][y-1] == "#"
+            row.push(16)
+          elsif temp[x+1][y] == "#" and temp[x][y-1] == "#"
+            row.push(17)
+          elsif temp[x-1][y] == "#" and temp[x-1][y-1] != "#"
+            row.push(22)
+          elsif temp[x+1][y] == "#" and temp[x+1][y-1] != "#"
+            row.push(23)
+          elsif temp[x-1][y] == "#"
+            row.push(18)
+          elsif temp[x+1][y] == "#"
+            row.push(19)
+          elsif temp[x][y-1] == "#"
+            row.push(20)
+          elsif temp[x-1][y-1] == "#"
+            row.push(24)
+          elsif temp[x+1][y-1] == "#"
+            row.push(25)
+          else
+            row.push(21)
+          end
         else
           row.push(-1)
         end
       end
       map.push(row)
     end
-    map = map.transpose
+    map
   end
   
   def switch_world(world)
