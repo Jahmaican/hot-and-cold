@@ -8,6 +8,7 @@ class Player
     @x, @y = x, y
     @@hot = Image.load_tiles(win, "media/playerhot.png", 8, 8, true)
     @@cold = Image.load_tiles(win, "media/playercold.png", 8, 8, true)
+    @@extras = Image.load_tiles(win, "media/extras.png", 8, 8, true)
     @sprite = @@hot
     
     @side = 0 # 0 - down, 1 - right, 2 - left, 3 - up
@@ -59,5 +60,7 @@ class Player
   
   def draw
     @sprite[@side*8 + @frame].draw(@x, @y, 2)
+    @@extras[0+(milliseconds/300)%4].draw(32, 24, 5)
+    @@extras[8].draw(32, 8, 5)
   end
 end

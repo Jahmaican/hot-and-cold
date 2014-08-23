@@ -7,7 +7,7 @@ require_relative 'class/player.rb'
 class Game < Window
   def initialize
     super 1, 1, false #hack
-    super 1024, 576, false
+    super screen_width, screen_height, true
     self.caption = "Hot and Cold"
     enable_undocumented_retrofication
     
