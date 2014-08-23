@@ -1,13 +1,14 @@
 class Map
+  attr_reader :map
   @@hot = nil
   @@cold = nil
   # size 42/24
-  def initialize(win)
+  def initialize(win, level)
     @@hot = Image.load_tiles(win, "media/maphot.png", 8, 8, true)
     @@cold = Image.load_tiles(win, "media/mapcold.png", 8, 8, true)
     @tiles = @@cold
     
-    @map = load_map("media/level1.map")
+    @map = load_map("levels/" + level + "/" + level + ".map")
     
   end
   

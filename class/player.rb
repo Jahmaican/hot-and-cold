@@ -15,42 +15,55 @@ class Player
     @frame = 0 # 0 - stand; 1, 2 - move
   end
   
-  def switch_world(world)
-    @sprite = world == :cold ? @@cold : @@hot
-  end
-  
   def update
     @speed = double_keys? ? SPEED/1.41 : SPEED
     
     @frame = 0
     
-    if @win.button_down? KbA or @win.button_down? KbLeft
+    if @win.button_down? KbA or @win.button_down? KbLeft and can_move?(:left)
       @x = @x - @speed
       @side = 2
       animate
     end
     
-    if @win.button_down? KbD or @win.button_down? KbRight
+    if @win.button_down? KbD or @win.button_down? KbRight and can_move?(:right)
       @x = @x + @speed
       @side = 1
       animate
     end
     
-    if @win.button_down? KbW or @win.button_down? KbUp
+    if @win.button_down? KbW or @win.button_down? KbUp and can_move?(:up)
       @y = @y - @speed
       @side = 3
       animate
     end
     
-    if @win.button_down? KbS or @win.button_down? KbDown
+    if @win.button_down? KbS or @win.button_down? KbDown and can_move?(:down)
       @y = @y + @speed
       @side = 0
       animate
     end
   end
   
+  def switch_world(world)
+    @sprite = world == :cold ? @@cold : @@hot
+  end
+  
   def animate
     @frame = 1 + (milliseconds/100)%2
+  end
+  
+  def can_move?(dir)
+    case dir
+    when :left
+      (16 .. 32).include?(@win.map.map[((@x+1+@speed)/8).to_i][((@y+@speed)/8).to_i + 1])
+    when :right
+      (16 .. 32).include?(@win.map.map[((@x+7+@speed)/8).to_i][((@y+@speed)/8).to_i + 1])
+    when :up
+      (16 .. 32).include?(@win.map.map[((@x+4+@speed)/8).to_i][((@y-6+@speed)/8).to_i + 1])
+    when :down
+      (16 .. 32).include?(@win.map.map[((@x+4+@speed)/8).to_i][((@y+1+@speed)/8).to_i + 1])
+    end
   end
   
   def double_keys?
@@ -59,8 +72,9 @@ class Player
   end
   
   def draw
-    @sprite[@side*8 + @frame].draw(@x, @y, 2)
+    @sprite[@side*8 + @frame].draw(@x, @y, 10)
     @@extras[0+(milliseconds/300)%4].draw(32, 24, 5)
     @@extras[8].draw(32, 8, 5)
+    @@extras[16+(milliseconds/100)%4].draw(48, 24, 5)
   end
 end

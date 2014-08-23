@@ -2,4 +2,4 @@
 build/
 ld30.komodoproject
 media/atari.col
-media/tileset.ase
+media/*.ase
