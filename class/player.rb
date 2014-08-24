@@ -1,14 +1,13 @@
 class Player
+  
   SPEED = 0.3
+  
   @@hot = nil
   @@cold = nil
   
   def initialize(win, x, y)
     @win = win
     @x, @y = x, y
-    @@hot = Image.load_tiles(win, "media/playerhot.png", 8, 8, true)
-    @@cold = Image.load_tiles(win, "media/playercold.png", 8, 8, true)
-    @@extras = Image.load_tiles(win, "media/extras.png", 8, 8, true)
     @sprite = @@hot
     
     @side = 0 # 0 - down, 1 - right, 2 - left, 3 - up
@@ -56,13 +55,13 @@ class Player
   def can_move?(dir)
     case dir
     when :left
-      (16 .. 32).include?(@win.map.map[((@x+1+@speed)/8).to_i][((@y+@speed)/8).to_i + 1])
+      (16 .. 47).include?(@win.map.map[((@x+1+@speed)/8).to_i][((@y+@speed)/8).to_i + 1])
     when :right
-      (16 .. 32).include?(@win.map.map[((@x+7+@speed)/8).to_i][((@y+@speed)/8).to_i + 1])
+      (16 .. 47).include?(@win.map.map[((@x+7+@speed)/8).to_i][((@y+@speed)/8).to_i + 1])
     when :up
-      (16 .. 32).include?(@win.map.map[((@x+4+@speed)/8).to_i][((@y-6+@speed)/8).to_i + 1])
+      (16 .. 47).include?(@win.map.map[((@x+4+@speed)/8).to_i][((@y-6+@speed)/8).to_i + 1])
     when :down
-      (16 .. 32).include?(@win.map.map[((@x+4+@speed)/8).to_i][((@y+1+@speed)/8).to_i + 1])
+      (16 .. 47).include?(@win.map.map[((@x+4+@speed)/8).to_i][((@y+1+@speed)/8).to_i + 1])
     end
   end
   
@@ -71,10 +70,15 @@ class Player
     (@win.button_down? KbA or @win.button_down? KbD or @win.button_down? KbLeft or @win.button_down? KbRight))
   end
   
+  def self.set_hot(img)
+    @@hot = img
+  end
+  
+  def self.set_cold(img)
+    @@cold = img
+  end
+  
   def draw
     @sprite[@side*8 + @frame].draw(@x, @y, 10)
-    @@extras[0+(milliseconds/300)%4].draw(32, 24, 5)
-    @@extras[8].draw(32, 8, 5)
-    @@extras[16+(milliseconds/100)%4].draw(48, 24, 5)
   end
 end

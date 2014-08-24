@@ -1,10 +1,11 @@
 class Menu
   attr_reader :action
+  @@title_screen = nil
+  @@buttons = nil
+  @@mbuttons = nil
+  
   def initialize(win)
     @win = win
-    @@title_screen = Image.new(win, "media/title_screen.png", true)
-    @@buttons = Image.load_tiles(win, "media/buttons.png", 45, 45, true)
-    @@mbuttons = Image.load_tiles(win, "media/mbuttons.png", 25, 25, true)
     
     @active = Array.new(7, false)
     @action = nil
@@ -60,6 +61,18 @@ class Menu
     else
       @active.insert(6, false)
     end
+  end
+  
+  def self.set_title_screen(img)
+    @@title_screen = img
+  end
+  
+  def self.set_buttons(img)
+    @@buttons = img
+  end
+  
+  def self.set_mbuttons(img)
+    @@mbuttons = img
   end
   
   def draw
