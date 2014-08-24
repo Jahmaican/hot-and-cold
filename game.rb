@@ -5,25 +5,26 @@ require_relative 'class/menu.rb'
 require_relative 'class/ingame.rb'
 require_relative 'class/map.rb'
 require_relative 'class/player.rb'
+require_relative 'class/spell.rb'
+require_relative 'class/timer.rb'
 
 class Game < Window
-  attr_reader :map, :scale_x, :scale_y
+  attr_reader :map, :player, :scale_x, :scale_y, :world
+  
   def initialize
-    super 1, 1, false #hack
     super screen_width, screen_height, true
     self.caption = "Hot and Cold"
     enable_undocumented_retrofication
     load_images
     
     @state = :menu
+    @world = :cold
     
     @scale_x = width/336.0
     @scale_y = height/192.0
     
     @menu = Menu.new(self)
     @info = Ingame.new(self)
-    
-    @world = :cold
   end
   
   def button_down(id)
@@ -61,9 +62,14 @@ class Game < Window
     when :level
       case(id)
       when KbQ
-        @world = @world == :cold ? :hot : :cold
-        @map.switch_world(@world)
-        @player.switch_world(@world)
+        if @player.can_switch?
+          @world = @world == :cold ? :hot : :cold
+          @map.switch_world(@world)
+          @player.switch_world(@world)
+          @player.switch_timer.reset
+        end
+      when MsLeft
+        @player.cast_spell
       when KbEscape
         close
       end
@@ -77,6 +83,7 @@ class Game < Window
     when :menu_msg
       @info.update
     when :level
+      @map.update
       @player.update
     end
   end
@@ -96,6 +103,8 @@ class Game < Window
     Map.set_extras(Image.load_tiles(self, "media/extras.png", 8, 8, true))
     Player.set_hot(Image.load_tiles(self, "media/playerhot.png", 8, 8, true))
     Player.set_cold(Image.load_tiles(self, "media/playercold.png", 8, 8, true))
+    Player.set_manabar(Image.load_tiles(self, "media/mana.png", 50, 16, true))
+    Player.set_cursor(Image.load_tiles(self, "media/cursor.png", 4, 4, true))
     Menu.set_title_screen(Image.new(self, "media/title_screen.png", true))
     Menu.set_buttons(Image.load_tiles(self, "media/buttons.png", 45, 45, true))
     Menu.set_mbuttons(Image.load_tiles(self, "media/mbuttons.png", 25, 25, true))
