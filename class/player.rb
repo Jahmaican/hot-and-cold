@@ -55,9 +55,21 @@ class Player
   
   def cast_spell
     if @target != nil and @spell == nil
-      if Spell.can_reach?(@x+4, @y+4, @target)
-        @spell = Spell.new(@win, @x+4, @y+4, @target)
+      if (@win.world == :hot and @blue_mana > 0) or (@win.world == :cold and @red_mana > 0)
+        if Spell.can_reach?(@x+4, @y+4, @target)
+          @spell = Spell.new(@win, @x+4, @y+4, @target)
+          reduce_mana
+        end
       end
+    end
+  end
+  
+  def reduce_mana
+    if @win.world == :cold
+      @red_mana = @red_mana - 1
+    else
+      @blue_mana = @blue_mana - 1
+      
     end
   end
   
@@ -86,10 +98,14 @@ class Player
     end
   end
   
+  def map_pos
+    [((@x+4)/8).to_i, ((@y+4)/8).to_i]
+  end
+  
   def can_switch?
     (16 .. 31).include?(@win.map.map_cold[((@x+4)/8).to_i][((@y)/8).to_i + 1]) and
     (16 .. 31).include?(@win.map.map_hot[((@x+4)/8).to_i][((@y)/8).to_i + 1]) and
-    @spell == nil and @switch_timer.time > 1000
+    @spell == nil and @switch_timer.time > 1000 and (@win.world == :hot and @blue_mana > 0) or (@win.world == :cold and @red_mana > 0)
   end
   
   def double_keys?

@@ -35,7 +35,7 @@ class Ingame
   end
   
   def set_info(message, b1text="OK!", b1action="continue", b2text = nil, b2action = nil)
-    @message = Image.from_text(@win, message, "media/alphbeta.ttf", 16, 3, 200, :left)
+    @message = Image.from_text(@win, message, "media/alphbeta.ttf", 12, 1, 200, :left)
     @b1text = b1text
     @b1action = b1action
     @b2text = b2text

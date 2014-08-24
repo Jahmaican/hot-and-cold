@@ -10,6 +10,7 @@ require_relative 'class/timer.rb'
 
 class Game < Window
   attr_reader :map, :player, :scale_x, :scale_y, :world
+  attr_accessor :state, :info
   
   def initialize
     super screen_width, screen_height, true
@@ -39,9 +40,9 @@ class Game < Window
             @info.set_info("Are you sure you want to quit?", "No", "continue", "Yes", "quit")
             @state = :menu_msg
           else
+            @state = :level
             @map = Map.new(self, @menu.action)
             @player = Player.new(self, @map.spawn_x, @map.spawn_y)
-            @state = :level
           end
         end
         
@@ -63,6 +64,7 @@ class Game < Window
       case(id)
       when KbQ
         if @player.can_switch?
+          @player.reduce_mana
           @world = @world == :cold ? :hot : :cold
           @map.switch_world(@world)
           @player.switch_world(@world)
@@ -71,7 +73,23 @@ class Game < Window
       when MsLeft
         @player.cast_spell
       when KbEscape
-        close
+        @info.set_info("Back to main menu?", "No", "continue", "Yes", "menu")
+        @state = :lvl_msg
+      end
+     when :lvl_msg
+      case(id)
+      when MsLeft
+        if @info.action != nil
+          if @info.action == "menu"
+            @state = :menu
+            @player = nil
+            @level = nil
+          else
+            @state = :level
+          end
+        end
+      when KbEscape
+        @state = :level
       end
     end
   end
@@ -85,6 +103,8 @@ class Game < Window
     when :level
       @map.update
       @player.update
+    when :lvl_msg
+      @info.update
     end
   end
   
@@ -128,6 +148,12 @@ class Game < Window
       scale(@scale_x, @scale_y) {
         @player.draw
         @map.draw
+      }
+    when :lvl_msg
+      scale(@scale_x, @scale_y) {
+        @player.draw
+        @map.draw
+        @info.draw
       }
     end
   end

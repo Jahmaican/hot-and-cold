@@ -14,8 +14,8 @@ class Map
     @fires = []
     @barrels = []
     @signs = []
-    @key = []
-    @door = []
+    @key = nil
+    @door = nil
     
     @map_hot = load_map("levels/" + level + "/" + level + "hot.map")
     @map_cold = load_map("levels/" + level + "/" + level + "cold.map")
@@ -27,6 +27,14 @@ class Map
     @obj_cold = load_obj("levels/" + level + "/" + level + "cold.obj")
     @obj = @obj_cold
     @objects_to_destroy = []
+    @song = Song.new(@win, "levels/" + level + "/" + level + ".ogg")
+    #@song.play(true)
+    
+    if level == "tutorial"
+      @win.info.set_info("Long story short - you're a wizard.\n\n* You can magically move with WSAD or arrow keys.\n* Press E or Enter to use items (like signs and doors).")
+      @win.state = :lvl_msg
+    end
+    
   end
   
   def load_obj(file)
@@ -241,7 +249,7 @@ class Map
       end
     end
     
-    @@extras[8].draw(@door[0]*8, @door[1]*8, 1)
+    @@extras[8].draw(@door[0]*8, @door[1]*8, 1) if @door != nil
     
     @@extras[10].draw(@key[0]*8, @key[1]*8, 1) if @key != nil
     @@extras[10].draw(210, 4, 1) if @win.player.has_key
