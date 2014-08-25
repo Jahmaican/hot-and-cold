@@ -7,6 +7,8 @@ class Player
   @@cold = nil
   @@manabar = nil
   @@cursor = nil
+  @@shut = nil
+  @@vict = nil
   
   def initialize(win, x, y)
     @win = win
@@ -53,10 +55,86 @@ class Player
     end
   end
   
+  def sign_nearby
+    sign = nil
+    @win.map.signs.each do |s|
+      if map_pos == s or [map_pos[0]-1, map_pos[1]] == s or [map_pos[0]+1, map_pos[1]] == s or [map_pos[0], map_pos[1]+1] == s or [map_pos[0], map_pos[1]-1] == s
+        sign = s  
+      end
+    end
+    sign
+  end
+  
+  def door_nearby
+    map_pos == @win.map.door or
+    [map_pos[0]-1, map_pos[1]] == @win.map.door or
+    [map_pos[0]+1, map_pos[1]] == @win.map.door or
+    [map_pos[0], map_pos[1]+1] == @win.map.door or
+    [map_pos[0], map_pos[1]-1] == @win.map.door
+  end
+  
+  def use_item
+    if door_nearby
+      use_door
+    else
+      sign = sign_nearby
+      if sign != nil
+        use_sign(sign)
+      end
+    end
+  end
+  
+  def use_door
+    if @has_key
+      win
+    else
+      @@shut.play
+    end
+  end
+  
+  def win
+    @@vict.play
+    @win.info.set_info("Perfect!", "Ok!", "menu")
+    @win.state = :lvl_msg
+  end
+  
+  def use_sign(sign)
+    # 8, 4
+    # 12, 11
+    # 17, 17
+    # 18, 4
+    # 25, 4
+    # 30, 13
+    
+    case sign
+    when [8, 4]
+      @win.info.set_info("You have a magical ability of traveling between 'hot' and 'cold' dimension.\nFeel stuck here? Press Q or Right Shift to switch dimensions.")
+      @win.state = :lvl_msg
+    when [18, 4]
+      @win.info.set_info("I'll try to stop you from switching dimensions in unsafe places, but don't try too hard. You might break the game!\nSwitching reduces your mana (little crystals top right). Bobbing indicates which mana pool will be used.")
+      @win.state = :lvl_msg
+    when [25, 4]
+      @win.info.set_info("Now for some real magic.\nAim at the fire below and press Left Mouse Button to shoot an Ice Shard.\nSpells also cost mana! If you run out of mana, you can only go back to menu an try again.")
+      @win.state = :lvl_msg
+    when [23, 10]
+      @win.info.set_info("Don't worry, I won't let you miss with the spell!")
+      @win.state = :lvl_msg
+    when [30, 13]
+      @win.info.set_info("Music gets a bit better in next levels, but you can always press M to switch it on/off.")
+      @win.state = :lvl_msg
+    when [12, 11]
+      @win.info.set_info("Key is an item needed for opening stuff, e.g. doors.\nSwitch to the cold dimension and destroy the barrel with a fireball to take the key!")
+      @win.state = :lvl_msg
+    when [17, 17]
+      @win.info.set_info("Now straight to exit. Press E to open doors when nearby.")
+      @win.state = :lvl_msg
+    end
+  end
+  
   def cast_spell
     if @target != nil and @spell == nil
       if (@win.world == :hot and @blue_mana > 0) or (@win.world == :cold and @red_mana > 0)
-        if Spell.can_reach?(@x+4, @y+4, @target)
+        if Spell.can_reach?(@win, @x+4, @y+4, @target)
           @spell = Spell.new(@win, @x+4, @y+4, @target)
           reduce_mana
         end
@@ -127,6 +205,14 @@ class Player
   
   def self.set_cursor(img)
     @@cursor = img
+  end
+  
+  def self.set_shut(snd)
+    @@shut = snd
+  end
+  
+  def self.set_vict(snd)
+    @@vict = snd
   end
   
   def draw

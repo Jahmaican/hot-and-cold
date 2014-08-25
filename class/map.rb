@@ -1,9 +1,12 @@
 class Map
-  attr_reader :map, :obj, :spawn_x, :spawn_y, :map_hot, :map_cold
+  attr_reader :map, :obj, :spawn_x, :spawn_y, :map_hot, :map_cold, :signs, :door, :song
   
   @@hot = nil
   @@cold = nil
   @@extras = nil
+  @@pickup = nil
+  @@fire = nil
+  @@ice = nil
   # size 42/24
   
   def initialize(win, level)
@@ -28,7 +31,7 @@ class Map
     @obj = @obj_cold
     @objects_to_destroy = []
     @song = Song.new(@win, "levels/" + level + "/" + level + ".ogg")
-    #@song.play(true)
+    @song.play(true) if !@win.muted
     
     if level == "tutorial"
       @win.info.set_info("Long story short - you're a wizard.\n\n* You can magically move with WSAD or arrow keys.\n* Press E or Enter to use items (like signs and doors).")
@@ -76,6 +79,9 @@ class Map
         end
       end
       obj.push(row)
+    end
+    @signs.each do |s|
+      #puts(s[0].to_s + ", " + s[1].to_s)
     end
     obj
   end
@@ -188,6 +194,7 @@ class Map
       if distance(@win.player.x+4, @win.player.y+4, @key[0]*8+4, @key[1]*8+4)/@win.scale_x < 0.5
         @key = nil
         @win.player.has_key = true
+        @@pickup.play
       end
     end
     
@@ -202,6 +209,7 @@ class Map
           @obj[obj[0][0]][obj[0][1]] = 4
         else
           @fires.delete(obj[0])
+          @@fire.play
         end
       else
         if obj[1].time > 600
@@ -213,6 +221,7 @@ class Map
           @obj[obj[0][0]][obj[0][1]] = 17
         else
           @barrels.delete(obj[0])
+          @@ice.play
         end
       end
     end
@@ -228,6 +237,18 @@ class Map
   
   def self.set_extras(img)
     @@extras = img
+  end
+  
+  def self.set_pickup(snd)
+    @@pickup = snd
+  end
+  
+  def self.set_fire(snd)
+    @@fire = snd
+  end
+  
+  def self.set_ice(snd)
+    @@ice = snd
   end
   
   def draw

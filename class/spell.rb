@@ -25,7 +25,7 @@ class Spell
     distance(@x, @y, @target_x, @target_y)/@win.scale_x < 0.3
   end
   
-  def self.can_reach?(x, y, target)
-    true
+  def self.can_reach?(win, x, y, target)
+    distance(x, y, target[0]*8 + 4, target[1]*8 + 4)/win.scale_x < 4
   end
 end

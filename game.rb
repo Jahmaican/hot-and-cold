@@ -9,7 +9,7 @@ require_relative 'class/spell.rb'
 require_relative 'class/timer.rb'
 
 class Game < Window
-  attr_reader :map, :player, :scale_x, :scale_y, :world
+  attr_reader :map, :player, :scale_x, :scale_y, :world, :muted
   attr_accessor :state, :info
   
   def initialize
@@ -26,23 +26,38 @@ class Game < Window
     
     @menu = Menu.new(self)
     @info = Ingame.new(self)
+    @muted = false
   end
   
   def button_down(id)
+    if id == KbM and @map != nil
+      if @muted
+        @map.song.play(true)
+        @muted = false
+      else
+        @map.song.stop
+        @muted = true
+      end
+    end
+    
     case @state
     when :menu
       case(id)
       when MsLeft
         if @menu.action != nil
           if @menu.action == "help"
-            
+            @info.set_info("Ludum Dare 30 entry\n\nCode and art by Jahmaican\n\nSounds - bfxr\nMusic - cgMusic\nFont - alphbeta.ttf\nSorry I failed!")
+            @state = :menu_msg
           elsif @menu.action == "exit"
             @info.set_info("Are you sure you want to quit?", "No", "continue", "Yes", "quit")
             @state = :menu_msg
-          else
+          elsif @menu.action == "tutorial"
             @state = :level
             @map = Map.new(self, @menu.action)
             @player = Player.new(self, @map.spawn_x, @map.spawn_y)
+          else
+            @info.set_info("Sorry guys I did not manage to include actual levels in time :(")
+            @state = :menu_msg
           end
         end
         
@@ -62,7 +77,7 @@ class Game < Window
       end
     when :level
       case(id)
-      when KbQ
+      when KbQ, KbRightShift
         if @player.can_switch?
           @player.reduce_mana
           @world = @world == :cold ? :hot : :cold
@@ -70,6 +85,8 @@ class Game < Window
           @player.switch_world(@world)
           @player.switch_timer.reset
         end
+      when KbE, KbEnter
+        @player.use_item
       when MsLeft
         @player.cast_spell
       when KbEscape
@@ -82,8 +99,9 @@ class Game < Window
         if @info.action != nil
           if @info.action == "menu"
             @state = :menu
+            @map.song.stop
             @player = nil
-            @level = nil
+            @map = nil
           else
             @state = :level
           end
@@ -121,10 +139,15 @@ class Game < Window
     Map.set_hot(Image.load_tiles(self, "media/maphot.png", 8, 8, true))
     Map.set_cold(Image.load_tiles(self, "media/mapcold.png", 8, 8, true))
     Map.set_extras(Image.load_tiles(self, "media/extras.png", 8, 8, true))
+    Map.set_pickup(Sample.new(self, "media/pickup.wav"))
+    Map.set_fire(Sample.new(self, "media/fire.wav"))
+    Map.set_ice(Sample.new(self, "media/ice.wav"))
     Player.set_hot(Image.load_tiles(self, "media/playerhot.png", 8, 8, true))
     Player.set_cold(Image.load_tiles(self, "media/playercold.png", 8, 8, true))
     Player.set_manabar(Image.load_tiles(self, "media/mana.png", 50, 16, true))
     Player.set_cursor(Image.load_tiles(self, "media/cursor.png", 4, 4, true))
+    Player.set_shut(Sample.new(self, "media/door.wav"))
+    Player.set_vict(Sample.new(self, "media/win.wav"))
     Menu.set_title_screen(Image.new(self, "media/title_screen.png", true))
     Menu.set_buttons(Image.load_tiles(self, "media/buttons.png", 45, 45, true))
     Menu.set_mbuttons(Image.load_tiles(self, "media/mbuttons.png", 25, 25, true))
